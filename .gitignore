@@ -1,0 +1,10 @@
+venv/
+media/
+db.sqlite3
+config/__pycache__/
+project/__pycache__/
+tasks/__pycache__/
+users/__pycache__/
+*.pyc
+*.txt
+*.md
