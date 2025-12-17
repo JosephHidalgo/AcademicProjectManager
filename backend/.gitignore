@@ -8,3 +8,5 @@ users/__pycache__/
 *.pyc
 *.txt
 *.md
+*.pdf
+*.docx
