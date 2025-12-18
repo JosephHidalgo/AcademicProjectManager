@@ -8,6 +8,7 @@ import {
     LayoutDashboard,
     FolderKanban,
     CheckSquare,
+    MessageCircle,
     LogOut,
     ChevronDown,
     ChevronRight,
@@ -22,12 +23,14 @@ import {
 import { useAuth, useLogout } from '@/hooks/useAuth';
 import { projectService } from '@/services/project.service';
 import { taskService } from '@/services/task.service';
+import { chatService } from '@/services/chat.service';
 import { useTheme } from '@/hooks/useTheme';
 
 const mainNavigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Proyectos', href: '/projects', icon: FolderKanban },
     { name: 'Mis Tareas', href: '/tasks', icon: CheckSquare },
+    { name: 'Chat', href: '/chat', icon: MessageCircle },
 ];
 
 export function Sidebar() {
@@ -47,6 +50,18 @@ export function Sidebar() {
         queryKey: ['my-tasks'],
         queryFn: taskService.getMyTasks,
     });
+
+    // Fetch chat rooms for unread count
+    const { data: chatRooms = [] } = useQuery({
+        queryKey: ['chat-rooms'],
+        queryFn: chatService.getChatRooms,
+        refetchInterval: 30000, // Refresh every 30 seconds
+    });
+
+    // Calculate total unread messages
+    const totalUnreadMessages = Array.isArray(chatRooms)
+        ? chatRooms.reduce((sum, room) => sum + (room.unread_count || 0), 0)
+        : 0;
 
     // Count urgent and pending tasks
     const getDaysRemaining = (deadline: string) => {
@@ -93,8 +108,11 @@ export function Sidebar() {
                         (item.href !== '/dashboard' && pathname.startsWith(item.href));
 
                     // Show badge for tasks
-                    const showBadge = item.href === '/tasks' && pendingTasks.length > 0;
+                    const showTaskBadge = item.href === '/tasks' && pendingTasks.length > 0;
                     const showUrgentBadge = item.href === '/tasks' && urgentTasks.length > 0;
+
+                    // Show badge for chat
+                    const showChatBadge = item.href === '/chat' && totalUnreadMessages > 0;
 
                     return (
                         <Link
@@ -105,12 +123,12 @@ export function Sidebar() {
                         >
                             <div className="relative">
                                 <item.icon />
-                                {showUrgentBadge && (
+                                {(showUrgentBadge || showChatBadge) && (
                                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                                 )}
                             </div>
                             <span className="flex-1">{item.name}</span>
-                            {showBadge && (
+                            {showTaskBadge && (
                                 <span
                                     className="px-2 py-0.5 text-xs font-bold rounded-full"
                                     style={{
@@ -119,6 +137,17 @@ export function Sidebar() {
                                     }}
                                 >
                                     {pendingTasks.length}
+                                </span>
+                            )}
+                            {showChatBadge && (
+                                <span
+                                    className="px-2 py-0.5 text-xs font-bold rounded-full"
+                                    style={{
+                                        backgroundColor: '#8B7355',
+                                        color: 'white'
+                                    }}
+                                >
+                                    {totalUnreadMessages > 9 ? '9+' : totalUnreadMessages}
                                 </span>
                             )}
                         </Link>

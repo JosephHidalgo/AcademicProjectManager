@@ -23,6 +23,7 @@ import {
     AlertTriangle,
     X,
     FileDown,
+    MessageCircle,
 } from 'lucide-react';
 import { projectService } from '@/services/project.service';
 import { taskService } from '@/services/task.service';
@@ -386,6 +387,12 @@ export default function ProjectDetailPage() {
                 </div>
 
                 <div className="flex gap-2">
+                    <Link href={`/chat?project=${projectId}`}>
+                        <Button variant="outline">
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Chat
+                        </Button>
+                    </Link>
                     <Button variant="outline" onClick={exportToPDF}>
                         <FileDown className="w-4 h-4 mr-2" />
                         Exportar
@@ -632,7 +639,7 @@ export default function ProjectDetailPage() {
                                 {members.map((member) => (
                                     <div
                                         key={member.id}
-                                        className="flex items-center gap-3 p-2 rounded-lg relative"
+                                        className="flex items-center gap-3 p-2 rounded-lg relative group hover:bg-[#F5EDE4] transition-colors"
                                     >
                                         <div
                                             className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-medium"
@@ -651,6 +658,27 @@ export default function ProjectDetailPage() {
                                                 {member.role_display}
                                             </p>
                                         </div>
+
+                                        {/* Chat Button - For non-self members */}
+                                        {member.user !== user?.id && (
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    try {
+                                                        const { chatService } = await import('@/services/chat.service');
+                                                        const chatRoom = await chatService.createPrivateChat(projectId, member.user);
+                                                        router.push(`/chat/${chatRoom.id}`);
+                                                    } catch (error) {
+                                                        console.error('Error creating chat:', error);
+                                                    }
+                                                }}
+                                                className="p-1.5 rounded-lg hover:bg-[#8B7355] hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                                style={{ color: '#7D6B5D' }}
+                                                title={`Chatear con ${member.user_name}`}
+                                            >
+                                                <MessageCircle className="w-4 h-4" />
+                                            </button>
+                                        )}
 
                                         {/* Member Actions - Only for leader and non-self members */}
                                         {isLeader && member.user !== user?.id && (
