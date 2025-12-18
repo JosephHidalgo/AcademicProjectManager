@@ -4,7 +4,9 @@ import axios from 'axios';
 const API_URL = '/api';
 
 // Direct backend URL for file uploads (proxy has issues with FormData)
-export const BACKEND_URL = 'http://127.0.0.1:8000/api';
+export const BACKEND_URL = typeof window !== 'undefined' 
+    ? `http://${window.location.hostname}:8000/api` 
+    : 'http://127.0.0.1:8000/api';
 
 // Flags to prevent multiple redirects and handle refresh queue
 let isRedirecting = false;

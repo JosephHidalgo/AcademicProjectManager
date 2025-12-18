@@ -53,7 +53,7 @@ export function useChat(roomId: number | null): UseChatReturn {
         const connectWebSocket = () => {
             // Determine WebSocket URL
             const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsHost = process.env.NEXT_PUBLIC_WS_URL || 'localhost:8000';
+            const wsHost = process.env.NEXT_PUBLIC_WS_URL || (typeof window !== 'undefined' ? `${window.location.hostname}:8000` : 'localhost:8000');
             const wsUrl = `${wsProtocol}//${wsHost}/ws/chat/${roomId}/?token=${accessToken}`;
 
             try {
