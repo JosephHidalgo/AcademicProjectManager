@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/auth/', include('users.urls')),
     path('api/projects/', include('projects.urls')),
     path('api/tasks/', include('tasks.urls')),
+    path('api/chat/', include('chat.urls')),
 ]
 
 # Servir archivos media en desarrollo
